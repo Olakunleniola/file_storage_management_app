@@ -1,9 +1,30 @@
 "use server";
 
-import { ID } from "node-appwrite";
-import { createAdminClient, getUserByEamil, sendEmailOTP } from "../appwrite";
+import { ID, Query } from "node-appwrite";
+import { createAdminClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
-import { parseStringify } from "../utils";
+import { handleError, parseStringify } from "../utils";
+
+export const getUserByEamil = async (email: string) => {
+  const { database } = await createAdminClient();
+  const result = await database.listDocuments(
+    appwriteConfig.databaseId,
+    appwriteConfig.usersCollectionId,
+    [Query.equal("email", [email])]
+  );
+
+  return result.total > 0 ? result.documents[0] : null;
+};
+
+export const sendEmailOTP = async ({ email }: { email: string }) => {
+  const { account } = await createAdminClient();
+  try {
+    const session = await account.createEmailToken(ID.unique(), email);
+    return session.userId;
+  } catch (err) {
+    handleError(err, "Failed to send email OTP");
+  }
+};
 
 export const createAccout = async ({
   fullName,
@@ -30,5 +51,29 @@ export const createAccout = async ({
       }
     );
   }
-  return parseStringify(accountId)
+  return parseStringify(accountId);
+};
+
+export const verifySecret = async ({
+  accountId,
+  password,
+}: {
+  accountId: string;
+  password: string;
+}) => {
+  try {
+    const { account } = await createAdminClient();
+    const session = await account.createSession(accountId, password);
+    const { cookies } = await import("next/headers");
+    (await cookies()).set("appwrite-session", session.secret, {
+      path: "/",
+      sameSite: true,
+      httpOnly: true,
+      secure: true,
+    });
+
+    return parseStringify({ sessionId: session.secret });
+  } catch (error) {
+    handleError(error, "Failed to verify OTP");
+  }
 };

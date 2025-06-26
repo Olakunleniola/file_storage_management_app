@@ -1,13 +1,13 @@
+"use client";
+
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 import {
@@ -15,10 +15,11 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import React, { ButtonHTMLAttributes, MouseEvent, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { FormSubmitHandler } from "react-hook-form";
 import { Button } from "./ui/button";
+import { verifySecret, sendEmailOTP } from "@/lib/actions/users.actions";
+import { useRouter } from "next/navigation";
 
 const OTPModal = ({
   email,
@@ -27,14 +28,18 @@ const OTPModal = ({
   email: string;
   accountId: string;
 }) => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       // Execute an API call here
+      const sessionId = await verifySecret({ accountId, password });
+      if (sessionId) router.push("/");
     } catch (err) {
       console.log("Unable to Submit OTP", err);
     } finally {
@@ -42,9 +47,10 @@ const OTPModal = ({
     }
   };
 
-  const handleResendOTP = () => {
-    // perform an API call
+  const handleResendOTP = async () => {
+    await sendEmailOTP({ email });
   };
+
   return (
     <div>
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -64,7 +70,7 @@ const OTPModal = ({
               <span className="pl-1 text-brand">{email}</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <InputOTP maxLength={6}>
+          <InputOTP maxLength={6} value={password} onChange={setPassword}>
             <InputOTPGroup className="shad-otp">
               <InputOTPSlot index={0} className="shad-otp-slot" />
               <InputOTPSlot index={1} className="shad-otp-slot" />
@@ -80,6 +86,7 @@ const OTPModal = ({
                 className="shad-submit-btn h-12"
                 type="button"
                 onClick={handleSubmit}
+                disabled={isLoading}
               >
                 Submit
                 {isLoading && (
