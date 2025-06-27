@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createAccout } from "@/lib/actions/users.actions";
+import { createAccout, signInUser } from "@/lib/actions/users.actions";
 import OTPModal from "./OTPModal";
 
 type FormType = "sign-in" | "sign-up";
@@ -50,14 +50,27 @@ const AuthForm = ({ type }: { type: FormType }) => {
     setIsLoading(true);
     setErrorMessage("");
     try {
-      const user = await createAccout({
-        fullName: values.fullName || "",
-        email: values.email,
-      });
+      const user =
+        type === "sign-up"
+          ? await createAccout({
+              fullName: values.fullName || "",
+              email: values.email,
+            })
+          : await signInUser({ email: values.email });
       console.log(user);
-      setAccountId(user);
-    } catch {
-      setErrorMessage("Failed to create account, Please try again");
+      setAccountId(user.accountId || user);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "User with this email already exists") {
+          setErrorMessage(
+            "User with this email already exists. Please sign in instead."
+          );
+        } else {
+          setErrorMessage("Failed to create account, Please try again");
+        }
+      } else {
+        setErrorMessage("Failed to create account, Please try again");
+      }
     } finally {
       setIsLoading(false);
     }

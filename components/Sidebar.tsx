@@ -74,7 +74,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
           height={44}
           className="sidebar-user-avatar"
         />
-        <div className="hidden lg:block">
+        <div className="hidden lg:block truncate">
           <p className="capitalize subtitle-2">{fullName}</p>
           <p className="caption">{email}</p>
         </div>

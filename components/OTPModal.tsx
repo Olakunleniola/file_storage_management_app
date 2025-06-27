@@ -106,6 +106,7 @@ const OTPModal = ({
                   variant="link"
                   className="pl-1 text-brand"
                   onClick={handleResendOTP}
+                  disabled={isLoading}
                 >
                   Click to resend
                 </Button>
