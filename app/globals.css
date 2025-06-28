@@ -358,6 +358,9 @@
   .error-toast {
     @apply bg-red !rounded-[10px] !important;
   }
+  .success-toast {
+    @apply bg-green/70 text-light-300 leading-3 !rounded-[10px] !important;
+  }
 
   /* Header */
   .header {

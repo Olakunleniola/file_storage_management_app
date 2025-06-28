@@ -15,15 +15,16 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { signOutUser } from "@/lib/actions/users.actions";
-interface Props {
-  ownerId: string;
-  accountId: string;
-  fullName: string;
-  avatar: string;
-  email: string;
-}
 
-const MobileNavigation = ({ fullName, avatar, email }: Props) => {
+import FileUploader from "./FileUploader";
+
+const MobileNavigation = ({
+  fullName,
+  avatar,
+  email,
+  $id: ownerId,
+  accountId,
+}: mobileNavigationProps) => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   return (
@@ -90,7 +91,7 @@ const MobileNavigation = ({ fullName, avatar, email }: Props) => {
           </nav>
           <Separator className="m-5 bg-light-200/20" />
           <div className="flex flex-col justify-between gap-5">
-            FileUploader
+            <FileUploader ownerId={ownerId} accountId={accountId} />
             <Button
               type="submit"
               className="mobile-sign-out-button"
