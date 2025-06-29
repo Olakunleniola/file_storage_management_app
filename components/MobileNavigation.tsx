@@ -66,7 +66,12 @@ const MobileNavigation = ({
           <nav className="mobile-nav ">
             <ul className="mobile-nav-list">
               {navItems.map(({ name, url, icon }) => (
-                <Link href={url} key={name} className="lg:w-full">
+                <Link
+                  href={url}
+                  key={name}
+                  className="lg:w-full"
+                  onClick={() => setOpen(false)}
+                >
                   <li
                     className={cn(
                       "mobile-nav-item",

@@ -20,7 +20,7 @@ const layout = async ({ children }: { children: React.ReactNode }) => {
       </section>
       <Toaster/>
     </main>
-  );
+  ); 
 };
 
 export default layout;
