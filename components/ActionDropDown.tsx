@@ -11,7 +11,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -24,6 +23,8 @@ import { Models } from "node-appwrite";
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { renameFiles } from "@/lib/actions/file.actions";
+import { usePathname } from "next/navigation";
 
 const ActionDropDown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,17 +32,35 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
   const [action, setAction] = useState<ActionType | null>(null);
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
-
+  const path = usePathname();
   const closeAllModals = () => {
-    setIsDropDownOpen(false)
-    setIsModalOpen(false)
-    setName(file.name)
-    setAction(null)
-  }
-
-  const handleAction = () => {
-    
-  }
+    setIsDropDownOpen(false);
+    setIsModalOpen(false);
+    setName(file.name);
+    setAction(null);
+  };
+  
+  const handleAction = async () => {
+    if (!action) return;
+    let success = false
+    setIsLoading(true);
+    const actions = {
+      rename: () =>
+        renameFiles({
+          fileId: file.$id,
+          name: name,
+          path: path,
+          extension: file.extension,
+        }),
+      share: () => console.log("share"),
+      delete: () => console.log("delete"),
+    };
+    success = await actions[action.value as keyof typeof actions]();
+    if (success) {
+      closeAllModals();
+      setIsLoading(false);
+    }
+  };
 
   const renderDialogContent = () => {
     if (!action) return null;
@@ -62,7 +81,9 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
         </DialogHeader>
         {["rename", "delete", "share"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">
-            <Button className="modal-cancel-button" onClick={closeAllModals}>Cancel</Button>
+            <Button className="modal-cancel-button" onClick={closeAllModals}>
+              Cancel
+            </Button>
             <Button className="modal-submit-button" onClick={handleAction}>
               <p className="capitalize">{value}</p>
               {isLoading && (
@@ -80,6 +101,7 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
       </DialogContent>
     );
   };
+
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DropdownMenu open={isDropDownOpen} onOpenChange={setIsDropDownOpen}>
