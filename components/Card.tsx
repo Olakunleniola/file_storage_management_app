@@ -17,14 +17,19 @@ const Card = ({ file }: { file: Models.Document }) => {
           imageClassName="!size-11"
         />
         <div className="flex flex-col items-end justify-between">
-          <ActionDropDown />
+          <ActionDropDown file={file} />
           <p className="body-1">{convertFileSize(file.size)}</p>
         </div>
       </div>
-      <div className="file-card-details space-y-1">
+      <div className="file-card-details space-y-0">
         <p className="subtitle-2 line-clamp-1 truncate">{file.name}</p>
-        <FormattedDatteTime date={file.$createdAt} className="body-2 text-light-100" />
-        <p className="caption line-clamp-1 text-light-200">{file.owner.fullName}</p>
+        <FormattedDatteTime
+          date={file.$createdAt}
+          className="body-2 text-light-100"
+        />
+        <p className="caption line-clamp-1 text-light-200">
+          {file.owner.fullName}
+        </p>
       </div>
     </Link>
   );
