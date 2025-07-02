@@ -54,6 +54,7 @@ interface UpdateFileUsersProps {
   fileId: string;
   emails: string[];
   path: string;
+  action?: string
 }
 interface DeleteFileProps {
   fileId: string;

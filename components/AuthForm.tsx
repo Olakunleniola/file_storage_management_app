@@ -57,7 +57,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
               email: values.email,
             })
           : await signInUser({ email: values.email });
-      console.log(user);
       setAccountId(user.accountId || user);
     } catch (error) {
       if (error instanceof Error) {

@@ -23,9 +23,14 @@ import { Models } from "node-appwrite";
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { renameFiles } from "@/lib/actions/file.actions";
+import {
+  deleteFIleUser,
+  renameFiles,
+  updateFileUsers,
+} from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { Share, DeleteFile, FileDetails } from "./ActionsModalContent";
+import { toast } from "sonner";
 
 const ActionDropDown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,7 +38,9 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
   const [action, setAction] = useState<ActionType | null>(null);
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
+  const [emails, setEmails] = useState<string[]>(file.users);
   const path = usePathname();
+
   const closeAllModals = () => {
     setIsDropDownOpen(false);
     setIsModalOpen(false);
@@ -53,21 +60,47 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
           path: path,
           extension: file.extension,
         }),
-      share: () => console.log("share"),
-      delete: () => console.log("delete"),
+      share: () =>
+        updateFileUsers({ fileId: file.$id, emails, path, action: "share" }),
+      delete: () =>
+        deleteFIleUser({
+          fileId: file.$id,
+          bucketFileId: file.bucketFileId,
+          path,
+        }),
     };
     try {
       success = await actions[action.value as keyof typeof actions]();
       if (success) {
         closeAllModals();
+        console.log(action);
+        toast.success(`File ${action.value}d successfully`, {
+          className: "success-toast",
+        });
       }
-      
-    }catch {
-      console.error("An error occurred while trying to perform action")
-    }finally {
+    } catch {
+      toast.error(`An error occurred while trying to ${action} file`, {
+        className: "error-toast",
+      });
+      console.error("An error occurred while trying to perform action");
+    } finally {
       setIsLoading(false);
     }
+  };
 
+  const handleRemoveUser = async (email: string) => {
+    const success = await updateFileUsers({
+      fileId: file.$id,
+      emails: [email],
+      path,
+      action: "remove",
+    });
+    if (success) {
+      toast.success("File removed successfully", {
+        className: "success-toast",
+      });
+    }
+    closeAllModals();
   };
 
   const renderDialogContent = () => {
@@ -88,7 +121,13 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
           )}
           {value === "details" && <FileDetails file={file} />}
           {value === "delete" && <DeleteFile file={file} />}
-          {value === "share" && <Share file={file} />}
+          {value === "share" && (
+            <Share
+              file={file}
+              onInputChange={setEmails}
+              onRemove={handleRemoveUser}
+            />
+          )}
         </DialogHeader>
         {["rename", "delete", "share"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">

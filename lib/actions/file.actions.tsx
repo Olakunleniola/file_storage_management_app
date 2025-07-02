@@ -111,3 +111,72 @@ export const renameFiles = async ({
     handleError(error, "Failed to rename file");
   }
 };
+
+export const updateFileUsers = async ({
+  fileId,
+  emails,
+  path,
+  action,
+}: UpdateFileUsersProps) => {
+  const { database } = await createAdminClient();
+  try {
+    // Get the current file to read its users
+    const file = await database.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      fileId
+    );
+
+    let updatedUsers: string[] = [];
+
+    switch (action) {
+      case "share":
+        // Add new emails to the existing users, avoiding duplicates
+        updatedUsers = Array.from(new Set([...(file.users || []), ...emails]));
+        break;
+      case "remove":
+        // Remove the specified emails from the existing users
+        updatedUsers = (file.users || []).filter(
+          (user: string) => !emails.includes(user)
+        );
+        break;
+      default:
+        return file.users;
+    }
+
+    const updatedFile = await database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      fileId,
+      {
+        users: updatedUsers,
+      }
+    );
+    revalidatePath(path);
+    return parseStringify(updatedFile);
+  } catch (error) {
+    handleError(error, "Failed to update file users");
+  }
+};
+
+export const deleteFIleUser = async ({
+  fileId,
+  bucketFileId,
+  path,
+}: DeleteFileProps) => {
+  const { storage, database } = await createAdminClient();
+  try {
+    const deletedFile = await database.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      fileId
+    );
+    if (deletedFile) {
+      await storage.deleteFile(appwriteConfig.bucketId, bucketFileId);
+    }
+    revalidatePath(path);
+    return parseStringify({ msg: "success" });
+  } catch (error) {
+    handleError(error, "Error deleting File");
+  }
+};
