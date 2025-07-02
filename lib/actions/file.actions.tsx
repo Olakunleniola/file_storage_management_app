@@ -1,5 +1,4 @@
 "use server";
-
 import { ID, Models, Query } from "node-appwrite";
 import { createAdminClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
@@ -12,6 +11,7 @@ import {
 import { InputFile } from "node-appwrite/file";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "./users.actions";
+
 
 export const uploadFile = async ({
   file,
@@ -61,22 +61,48 @@ export const uploadFile = async ({
   }
 };
 
-const createQueries = (currentUser: Models.Document) => {
+const createQueries = (
+  currentUser: Models.Document,
+  types: string[],
+  searchText?: string,
+  sort?: string,
+  limit?: number
+) => {
   const queries = [
     Query.or([
       Query.equal("owner", currentUser.$id),
       Query.contains("users", currentUser.email),
     ]),
   ];
+  if (types.length > 0) {
+    queries.push(Query.equal("type", types));
+  }
+  console.log(`i am ${searchText}`)
+  if (searchText) {
+    queries.push(Query.contains("name", searchText));
+  }
+  if (limit) {
+    queries.push(Query.limit(limit));
+  }
+
+  const [sortBy, orderBy] = sort?.split("-") || []
+
+  queries.push(orderBy === "asc" ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy))
+
   return queries;
 };
 
-export const getFiles = async () => {
+export const getFiles = async ({
+  types = [],
+  searchText = "",
+  sort = "$createdAt-desc",
+  limit,
+}: GetFilesProps) => {
   const { database } = await createAdminClient();
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) throw new Error("User not found");
-    const queries = createQueries(currentUser);
+    const queries = createQueries(currentUser, types, searchText, sort, limit);
     const files = await database.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.filesCollectionId,

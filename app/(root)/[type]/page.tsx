@@ -1,12 +1,16 @@
+"use server";
 import Sort from "@/components/Sort";
 import { getFiles } from "@/lib/actions/file.actions";
 import { Models } from "node-appwrite";
-import React from "react";
 import Card from "@/components/Card";
+import { getFileTypesParams } from "@/lib/utils";
 
-const page = async ({ params }: SearchParamProps) => {
-  const files = await getFiles();
+const page = async ({ searchParams, params }: SearchParamProps) => {
   const type = (await params)?.type || "";
+  const searchText = ((await searchParams)?.query as string) || "";
+  const sort = ((await searchParams)?.sort as string) || "";
+  const types = (getFileTypesParams(type) as FileType[]) || [];
+  const files = await getFiles({ types, searchText, sort });
   return (
     <div className="page-container">
       <section className="w-full">
