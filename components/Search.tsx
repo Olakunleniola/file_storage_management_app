@@ -85,7 +85,7 @@ const Search = () => {
               result.map((file) => (
                 <li
                   key={file.$id}
-                  className="flex items-center justify-between gap-2"
+                  className="flex items-center justify-between gap-2 hover:bg-light-300 p-2 rounded-md"
                   onClick={() => handleClickItem(file)}
                 >
                   <div className="flex cursor-pointer items-center gap-4">

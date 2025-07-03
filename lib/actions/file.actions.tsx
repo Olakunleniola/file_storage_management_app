@@ -77,7 +77,6 @@ const createQueries = (
   if (types.length > 0) {
     queries.push(Query.equal("type", types));
   }
-  console.log(`i am ${searchText}`)
   if (searchText) {
     queries.push(Query.contains("name", searchText));
   }

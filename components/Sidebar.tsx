@@ -38,7 +38,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
             <Link href={url} key={name} className="lg:w-full">
               <li
                 className={cn(
-                  "sidebar-nav-item",
+                  "sidebar-nav-item hover:bg-light-200 hover:!text-white",
                   pathname === url && "shad-active"
                 )}
               >
