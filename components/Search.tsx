@@ -7,7 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Models } from "node-appwrite";
 import { getFiles } from "@/lib/actions/file.actions";
 import Thumbnail from "./Thumbnail";
-import FormattedDatteTime from "./FormattedDatteTime";
+import FormattedDateTime from "./FormattedDateTime";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 
@@ -98,7 +98,7 @@ const Search = () => {
                     <p className="subtitle-2 line-clamp-1 text-light-100">
                       {file.name}
                     </p>
-                    <FormattedDatteTime
+                    <FormattedDateTime
                       date={file.$createdAt}
                       className="caption line-clamp-1 text-light-200"
                     />

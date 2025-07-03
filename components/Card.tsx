@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Models } from "node-appwrite";
 import Thumbnail from "./Thumbnail";
 import { convertFileSize } from "@/lib/utils";
-import FormattedDatteTime from "./FormattedDatteTime";
+import FormattedDateTime from "./FormattedDateTime";
 import ActionDropDown from "./ActionDropDown";
 
 const Card = ({ file }: { file: Models.Document }) => {
@@ -23,7 +23,7 @@ const Card = ({ file }: { file: Models.Document }) => {
       </div>
       <div className="file-card-details space-y-0">
         <p className="subtitle-2 line-clamp-1 truncate">{file.name}</p>
-        <FormattedDatteTime
+        <FormattedDateTime
           date={file.$createdAt}
           className="body-2 text-light-100"
         />

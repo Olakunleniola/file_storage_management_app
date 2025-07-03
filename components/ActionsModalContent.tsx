@@ -1,6 +1,6 @@
 import { Models } from "node-appwrite";
 import Thumbnail from "./Thumbnail";
-import FormattedDatteTime from "./FormattedDatteTime";
+import FormattedDateTime from "./FormattedDateTime";
 import { convertFileSize, formatDateTime } from "@/lib/utils";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -18,7 +18,7 @@ const ImageThumbNail = ({ file }: { file: Models.Document }) => (
     <Thumbnail type={file.type} extension={file.extension} url={file.url} />
     <div className="flex flex-col">
       <div className="subtitle-2">{file.name}</div>
-      <FormattedDatteTime date={file.$createdAt} className="caption" />
+      <FormattedDateTime date={file.$createdAt} className="caption" />
     </div>
   </div>
 );
