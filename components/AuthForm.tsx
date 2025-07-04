@@ -57,6 +57,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
               email: values.email,
             })
           : await signInUser({ email: values.email });
+      if (user.hasOwnProperty("error")) throw new Error(user.error);
       setAccountId(user.accountId || user);
     } catch (error) {
       if (error instanceof Error) {
@@ -64,6 +65,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
           setErrorMessage(
             "User with this email already exists. Please sign in instead."
           );
+        } else if (error.message === "User not found") {
+          setErrorMessage("User not found. Please sign up instead.");
         } else {
           setErrorMessage("Failed to create account, Please try again");
         }
